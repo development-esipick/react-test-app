@@ -1,34 +1,38 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice ,createAsyncThunk } from '@reduxjs/toolkit'
 
-const initialState = {
+import Axios from './api'
+export const fetchContacts = createAsyncThunk('contacts/fetchContacts', async ({page,countryId}) => {
+    const options = { 
+        params : {
+            "countryId": countryId,
+            "companyId": 171,
+            "page": page
+        }
+      };
+    let response = Axios(options).get("/contacts.json")
+    return (await response).data
+   
+})
+
+export const contactSlicer = createSlice({
+  name: 'contacts',
+  initialState: {
     value: 0,
-};
+    contacts: []
+  },
+  reducers: {
+  
+  },
+  extraReducers: (builder) => {
+    builder.addCase(fetchContacts.fulfilled, (state, action) => {
+        state.contacts = action.payload.contacts
+    })
+}
+})
+export const selecContacts = (state) => state.contacts.contacts
 
-export const counterSlice = createSlice({
-    name: "Contacts",
-    initialState,
-    reducers: {
-        increment: (state) => {
-            // Redux Toolkit allows us to write "mutating" logic in reducers. It
-            // doesn't actually mutate the state because it uses the Immer library,
-            // which detects changes to a "draft state" and produces a brand new
-            // immutable state based off those changes
-            state.value += 1;
-        },
-        decrement: (state) => {
-            state.value -= 1;
-        },
-        incrementByAmount: (state, action) => {
-            state.value += action.payload;
-        },
-        setCounter: (state, action) => {
-            state.value = action.payload;
-        },
-    },
-});
 
 // Action creators are generated for each case reducer function
-export const { increment, decrement, incrementByAmount, setCounter } =
-    counterSlice.actions;
-// You must export the reducer as follows for it to be able to be read by the store.
-export default counterSlice.reducer;
+// export const { increment, decrement, incrementByAmount } = contactSlicer.actions
+
+export default contactSlicer.reducer
